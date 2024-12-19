@@ -1,3 +1,9 @@
+import { Colors } from "./_components/colors/colors";
+
 export default function Home() {
-  return <div>React app</div>;
+  return (
+    <>
+      <Colors />
+    </>
+  );
 }
