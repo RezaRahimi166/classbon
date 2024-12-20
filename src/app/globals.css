@@ -9,3 +9,7 @@ html {
 :lang(en) {
   font-family: var(--font-figtree);
 }
+
+.gradiant {
+  @apply bg-gradient-to-t from-gradient-first to-gradient-second text-transparent bg-clip-text;
+}
