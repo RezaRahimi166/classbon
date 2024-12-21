@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Colors } from "./_components/colors/colors";
+import { Button } from "./_components/button";
 
 export default function Home() {
   return (
@@ -16,6 +16,16 @@ export default function Home() {
             هرجای مسیر برنامه نویسی که باشی با همراهی استادهای با تجربه ی کلاسبن
             میتونی بدون محدودیت به قله های بالاتر صعود کنی ما همیشه هواتو داریم!
           </p>
+
+          <div className="mt-5 flex gap-4">
+            <Button variant="primary" size="large">
+              دوره های ریکت و نکست
+            </Button>
+            <Button variant="neutral" size="large">
+              مشاوره ی برنامه نویسی
+            </Button>
+          </div>
+
           <Image
             src={"/images/frameworks.png"}
             width={412}
