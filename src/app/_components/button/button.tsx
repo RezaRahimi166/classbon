@@ -1,6 +1,7 @@
+"use client";
 import classNames from "classnames";
-import { ButtonProps, ButtonShape } from "./button.types";
 import { Size } from "../types/size.type";
+import { ButtonProps, ButtonShape } from "./button.types";
 
 const sizeClasses: Record<Size, string> = {
   tiny: "btn-xs",
@@ -24,28 +25,28 @@ export const Button: React.FC<ButtonProps> = ({
   shape = "default",
   isLoading = false,
   loadingType = "spinner",
-  loadingText = "درحال ارسال درخواست...",
+  loadingText = "در حال ارسال درخواست",
   type = "button",
   isLink = false,
-  animatedIcon = false,
   children,
   className,
+  animatedIcon = false,
   ...rest
 }: ButtonProps) => {
   const classes = classNames(
     "btn",
     className,
-    { "btn-outline": isOutline },
-    { "btn-link": isLink },
-    { "animated-icon": animatedIcon },
-    { "pointer-events-none opacity-80": isLoading },
     { [`btn-${variant}`]: variant },
     { [`${sizeClasses[size]}`]: size },
-    { [`${shapeClasses[shape]}`]: shape }
+    { "btn-outline": isOutline },
+    { "btn-link": isLink },
+    { [`${shapeClasses[shape]}`]: shape },
+    { "animated-icon": animatedIcon },
+    { "pointer-events-none opacity-80": isLoading }
   );
 
   return (
-    <button type={type} disabled={isDisabled} {...rest} className={classes}>
+    <button type={type} disabled={isDisabled} className={classes} {...rest}>
       {isLoading ? loadingText : children}
     </button>
   );
