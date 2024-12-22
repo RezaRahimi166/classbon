@@ -103,65 +103,65 @@
 
   /* outline */
   &-outline {
-    @apply border-current bg-transparent text-base-content;
+    @apply border-current dark:bg-transparent dark:text-base-content;
     @media (hover: hover) {
       &:hover {
-        @apply border-base-content bg-base-content text-base-100;
+        @apply dark:border-base-content dark:bg-base-content dark:text-base-100;
       }
     }
     &.btn-primary {
-      @apply text-primary;
+      @apply dark:text-primary;
       @media (hover: hover) {
         &:hover {
-          @apply border-primary-focus bg-primary-focus text-primary-content;
+          @apply dark:border-primary-focus dark:bg-primary-focus dark:text-primary-content;
         }
       }
     }
     &.btn-secondary {
-      @apply text-secondary;
+      @apply dark:text-secondary;
       @media (hover: hover) {
         &:hover {
-          @apply border-secondary-focus bg-secondary-focus text-secondary-content;
+          @apply dark:border-secondary-focus dark:bg-secondary-focus dark:text-secondary-content;
         }
       }
     }
     &.btn-accent {
-      @apply text-accent;
+      @apply dark:text-accent;
       @media (hover: hover) {
         &:hover {
-          @apply border-accent-focus bg-accent-focus text-accent-content;
+          @apply dark:border-accent-focus dark:bg-accent-focus dark:text-accent-content;
         }
       }
     }
     &.btn-success {
-      @apply text-success;
+      @apply dark:text-success;
       @media (hover: hover) {
         &:hover {
-          @apply border-success bg-success text-base-100;
+          @apply dark:border-success dark:bg-success dark:text-base-100;
         }
       }
     }
     &.btn-info {
-      @apply text-info;
+      @apply dark:text-info;
       @media (hover: hover) {
         &:hover {
-          @apply border-info bg-info text-base-100;
+          @apply dark:border-info dark:bg-info dark:text-base-100;
         }
       }
     }
     &.btn-warning {
-      @apply text-warning;
+      @apply dark:text-warning;
       @media (hover: hover) {
         &:hover {
-          @apply border-warning bg-warning text-base-100;
+          @apply dark:border-warning dark:bg-warning dark:text-base-100;
         }
       }
     }
     &.btn-error {
-      @apply text-error;
+      @apply dark:text-error;
       @media (hover: hover) {
         &:hover {
-          @apply border-error bg-error text-base-100;
+          @apply dark:border-error dark:bg-error dark:text-base-100;
         }
       }
     }
@@ -209,6 +209,9 @@
     }
     &:where(.btn-sm) {
       @apply h-8 w-8 p-0;
+    }
+    &:where(.btn-md) {
+      @apply h-12 w-12 p-0;
     }
     &:where(.btn-lg) {
       @apply h-16 w-16 p-0;
