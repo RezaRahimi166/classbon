@@ -20,4 +20,13 @@ describe("Button Components", () => {
     rerender(<Button variant="info">Click here</Button>);
     expect(screen.getByRole("button")).toHaveClass("btn-info");
   });
+
+  test("show renderd button", () => {
+    render(
+      <Button variant="primary" isOutline={true} size="large" isDisabled={true}>
+        Click here
+      </Button>
+    );
+    screen.debug();
+  });
 });
