@@ -5,6 +5,7 @@ import { CourseSummary } from "@/types/course-summary.interface";
 import Feature from "./_components/feature/feature";
 import { Button } from "./_components/button";
 import { IconArrowLeftFill } from "./_components/icons/icons";
+import { BlogPotsSummary } from "@/types/blog-post.interface";
 
 async function getNewestCourses(count: number): Promise<CourseSummary[]> {
   const res = await fetch(
@@ -17,9 +18,23 @@ async function getNewestCourses(count: number): Promise<CourseSummary[]> {
   );
   return res.json();
 }
+async function getNewestPosts(count: number): Promise<BlogPotsSummary[]> {
+  const res = await fetch(`https://api.classbon.com/api/blog/newest/${count}`, {
+    next: {
+      revalidate: 24 * 60 * 60,
+    },
+  });
+  return res.json();
+}
 
 export default async function Home() {
-  const newestCourses = await getNewestCourses(4);
+  const newestCoursesData = getNewestCourses(4);
+  const newestBlogPostData = getNewestPosts(4);
+
+  const [newestCourses, newestBlogPost] = await Promise.all([
+    newestCoursesData,
+    newestBlogPostData,
+  ]);
 
   return (
     <>
