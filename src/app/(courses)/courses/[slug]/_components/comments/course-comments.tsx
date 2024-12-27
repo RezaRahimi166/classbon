@@ -6,7 +6,7 @@ import { Comment } from "@/app/_components/comment/comment";
 
 const CourseComments = () => {
   const { slug } = useParams();
-  const { data: comments } = useCourseComments({
+  const { data: comments, isLoading } = useCourseComments({
     params: {
       slug: slug as string,
       page: 1,
