@@ -38,7 +38,6 @@ async function apiBase<T>(
   options?: AxiosRequestConfig
 ): Promise<T> {
   const response: AxiosResponse = await httpService(url, options);
-
   return response.data as T;
 }
 
@@ -50,7 +49,6 @@ async function readData<T>(
     headers: headers,
     method: "GET",
   };
-
   return await apiBase<T>(url, options);
 }
 
@@ -67,6 +65,7 @@ async function createData<TModel, TResult>(
 
   return await apiBase<TResult>(url, options);
 }
+
 async function updateData<TModel, TResult>(
   url: string,
   data: TModel,
@@ -83,7 +82,7 @@ async function updateData<TModel, TResult>(
 
 async function deleteData(
   url: string,
-  headers: AxiosRequestHeaders
+  headers?: AxiosRequestHeaders
 ): Promise<void> {
   const options: AxiosRequestConfig = {
     method: "DELETE",

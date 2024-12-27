@@ -1,17 +1,24 @@
 "use client";
 
-import { readData } from "@/core/http-service/http-service";
-import { useEffect } from "react";
+import { useParams } from "next/navigation";
+import { useCourseComments } from "../../_api/get-comments";
 
 const CourseComments = () => {
-  useEffect(() => {
-    readData("/bad-request");
-  }, []);
-
+  const { slug } = useParams();
+  const { data: comments } = useCourseComments({
+    params: {
+      slug: slug as string,
+      page: 1,
+    },
+  });
   return (
-    <div>
-      <></>
-    </div>
+    <>
+      {comments?.data.map((p) => (
+        <p key={p.id} className="mb-8">
+          {p.commentText}
+        </p>
+      ))}
+    </>
   );
 };
 
