@@ -9,8 +9,16 @@ interface BadReaquestError extends Problem {}
 interface UnauthorizedError extends Problem {}
 interface ValidationError extends Problem {}
 interface NotFoundError extends Problem {}
-interface UnhandleError extends Problem {}
+interface UnhandledException extends Problem {}
 interface NetworkError extends Problem {}
+
+type ApiError =
+  | BadReaquestError
+  | NetworkError
+  | NotFoundError
+  | UnhandledException
+  | UnauthorizedError
+  | ValidationError;
 
 export type {
   Problem,
@@ -18,6 +26,7 @@ export type {
   UnauthorizedError,
   ValidationError,
   NotFoundError,
-  UnhandleError,
+  UnhandledException,
   NetworkError,
+  ApiError,
 };

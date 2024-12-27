@@ -1,26 +1,12 @@
 import { API_URL } from "@/configs/global";
 
-import {
-  BadReaquestError,
-  NetworkError,
-  NotFoundError,
-  UnhandleError,
-  UnauthorizedError,
-  ValidationError,
-} from "@/types/http-errors.interface";
+import { ApiError } from "@/types/http-errors.interface";
 import axios, {
   AxiosRequestConfig,
   AxiosRequestHeaders,
   AxiosResponse,
 } from "axios";
-
-type ApiError =
-  | BadReaquestError
-  | NetworkError
-  | NotFoundError
-  | UnhandleError
-  | UnauthorizedError
-  | ValidationError;
+import { errorHandler, networkErrorStrategy } from "./http-errors-strategies";
 
 const httpService = axios.create({
   baseURL: API_URL,
@@ -39,43 +25,10 @@ httpService.interceptors.response.use(
       if (statusCode >= 400) {
         const errorData: ApiError = error.response?.data;
 
-        if (statusCode === 400 && !errorData.errors) {
-          throw {
-            ...errorData,
-          } as BadReaquestError;
-        }
-
-        if (statusCode === 400 && errorData.errors) {
-          throw {
-            ...errorData,
-          } as ValidationError;
-        }
-
-        if (statusCode === 404) {
-          throw {
-            ...errorData,
-            detail: "سرویس مورد نظر یافت نشد",
-          } as NotFoundError;
-        }
-
-        if (statusCode === 403) {
-          throw {
-            ...errorData,
-            detail: "دسترسی به سرویس مورد نظر امکان پدیر نمی باشد",
-          } as UnauthorizedError;
-        }
-
-        if (statusCode >= 500) {
-          throw {
-            ...errorData,
-            detail: "خطای سرور",
-          } as UnhandleError;
-        }
-      } else {
-        throw {
-          detail: "خطای شبکه",
-        } as NetworkError;
+        errorHandler[statusCode](errorData);
       }
+    } else {
+      networkErrorStrategy();
     }
   }
 );
