@@ -22,6 +22,7 @@ export const useCourseComments = ({ params }: GetCommentsOptions) => {
     data,
     error,
     isFetchingNextPage,
+    isFetching,
     fetchNextPage,
     hasNextPage,
     refetch,
@@ -42,5 +43,6 @@ export const useCourseComments = ({ params }: GetCommentsOptions) => {
     fetchNextPage,
     hasNextPage,
     refetch,
+    isFetching,
   };
 };

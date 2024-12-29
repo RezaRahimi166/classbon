@@ -6,6 +6,8 @@ import { Comment } from "@/app/_components/comment/comment";
 import { Fragment, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { TextPlaceholder } from "@/app/_components/placeholders";
+import { Button } from "@/app/_components/button";
+import { IconRefresh } from "@/app/_components/icons/icons";
 
 const CourseComments = () => {
   const { ref, inView } = useInView({});
@@ -18,6 +20,7 @@ const CourseComments = () => {
     fetchNextPage,
     hasNextPage,
     refetch,
+    isFetching,
   } = useCourseComments({
     params: {
       slug: slug as string,
@@ -30,6 +33,26 @@ const CourseComments = () => {
       fetchNextPage();
     }
   }, [inView, fetchNextPage, hasNextPage]);
+
+  if (error) {
+    return (
+      <>
+        <p>خطا در برقراری ارتباط با سرور</p>
+        <div className="text-center mt-3">
+          <Button
+            variant="neutral"
+            className="font-semibold"
+            isOutline={true}
+            shape="wide"
+            onClick={() => refetch()}
+          >
+            <IconRefresh />
+            تلاش مجدد
+          </Button>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -45,7 +68,7 @@ const CourseComments = () => {
         </Fragment>
       ))}
 
-      {isFetchingNextPage ||
+      {isFetching ||
         (hasNextPage && (
           <div ref={ref}>
             <TextPlaceholder />
