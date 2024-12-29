@@ -32,8 +32,6 @@ export default async function CoursDetails({
   const { slug } = params;
   const course = await getCourse(slug);
 
-  console.log({ course });
-
   const faqs: AccordionType[] = course.frequentlyAskedQuestions.map((faq) => ({
     id: faq.id,
     title: faq.question,
