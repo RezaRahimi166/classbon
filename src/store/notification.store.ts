@@ -6,7 +6,7 @@ import { devtools } from "zustand/middleware";
 type NotificationState = {
   notifications: Notification[];
   showNotification: (notification: Omit<Notification, "id">) => void;
-  dissmissNotification: (id: string) => void;
+  dismissNotification: (id: string) => void;
 };
 
 export const useNotificationStore = create<NotificationState>()(
@@ -19,13 +19,19 @@ export const useNotificationStore = create<NotificationState>()(
       }));
 
       setTimeout(() => {
-        get().dissmissNotification(id);
-      }, notification.duration);
+        get().dismissNotification(id);
+      }, 5000);
     },
-    dissmissNotification: (id) => {
-      set((stata) => ({
-        notifications: stata.notifications.filter((p) => p.id !== id),
+    dismissNotification: (id) => {
+      set((state) => ({
+        notifications: state.notifications.filter((p) => p.id !== id),
       }));
     },
   }))
 );
+
+export const showNotification = (notifications: Omit<Notification, "id">[]) => {
+  notifications.forEach((p) =>
+    useNotificationStore.getState().showNotification(p)
+  );
+};

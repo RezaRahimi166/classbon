@@ -7,7 +7,6 @@ import { TextInput } from "@/app/_components/form-input";
 import { useSignIn } from "../_api/signin";
 import { useRouter } from "next/navigation";
 import { useNotificationStore } from "@/store/notification.store";
-import { useEffect } from "react";
 
 const SignInForm = () => {
   const {
@@ -19,26 +18,22 @@ const SignInForm = () => {
 
   const router = useRouter();
 
-  const signIn = useSignIn({
-    onSuccess: () => {
-      router.push(`/verify?mobile=${getValues("mobile")}`);
-    },
-  });
-
-  const onSubmit = (data: SignIn) => {
-    signIn.submit(data);
-  };
-
   const showNotification = useNotificationStore(
     (state) => state.showNotification
   );
 
-  useEffect(() => {
-    showNotification({
-      type: "success",
-      message: "عملیات با موفقیت انجام شد",
-    });
-  }, []);
+  const signIn = useSignIn({
+    onSuccess: () => {
+      router.push(`/verify?mobile=${getValues("mobile")}`);
+      showNotification({
+        message: "کد تایید به شماره شما ارسال شد",
+        type: "info",
+      });
+    },
+  });
+  const onSubmit = (data: SignIn) => {
+    signIn.submit(data);
+  };
 
   return (
     <>

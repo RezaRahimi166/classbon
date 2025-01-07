@@ -5,4 +5,4 @@ export interface Notification {
   type: NotificationType;
 }
 
-export type NotificationType = "success" | "warning" | "error" | "info";
+export type NotificationType = "success" | "error" | "info" | "warning";

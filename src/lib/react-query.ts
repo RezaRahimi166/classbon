@@ -1,17 +1,19 @@
+import { Problem } from "@/types/http-errors.interface";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import { Notification } from "@/types/notification.interface";
+import { error } from "console";
+import { showNotification } from "@/store/notification.store";
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
-    onError: (error) => {
-      // show notification
+    onError: (error) => {},
+  }),
+  mutationCache: new MutationCache({
+    onError: (error: unknown) => {
+      showNotifications(error as Problem);
     },
   }),
 
-  mutationCache: new MutationCache({
-    onError: (error) => {
-      // show notification
-    },
-  }),
   defaultOptions: {
     queries: {
       retry: false,
@@ -21,3 +23,24 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+const showNotifications = (problem: Problem) => {
+  const notifications: Omit<Notification, "id">[] = [];
+  if (problem?.errors) {
+    Object.entries(problem.errors).forEach(([_, values]) =>
+      values.forEach((errorMessage) =>
+        notifications.push({
+          message: errorMessage,
+          type: "error",
+        })
+      )
+    );
+  } else if (problem?.detail) {
+    notifications.push({
+      message: problem.detail,
+      type: "error",
+    });
+  }
+
+  showNotification(notifications);
+};
