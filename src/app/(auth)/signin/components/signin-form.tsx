@@ -10,7 +10,7 @@ import { useNotificationStore } from "@/store/notification.store";
 import { signInSchema } from "../types/singin.schema";
 import { signinAction } from "@/actions/auth";
 import { useFormState } from "react-dom";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 
 const SignInForm = () => {
   const {
@@ -23,6 +23,7 @@ const SignInForm = () => {
   });
 
   const [formStata, action] = useFormState(signinAction, null);
+  const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
 
@@ -60,7 +61,10 @@ const SignInForm = () => {
   const onSubmit = (data: SignIn) => {
     const formData = new FormData();
     formData.append("mobile", data.mobile);
-    action(formData);
+    startTransition(async () => {
+      await action(formData);
+    });
+
     // signIn.submit(data);
   };
 
@@ -78,7 +82,7 @@ const SignInForm = () => {
           errors={errors}
         />
 
-        <Button type="submit" variant="primary">
+        <Button type="submit" variant="primary" isLoading={isPending}>
           تایید و دریافت کد
         </Button>
       </form>
