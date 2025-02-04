@@ -22,7 +22,7 @@ const SignInForm = () => {
     resolver: zodResolver(signInSchema),
   });
 
-  const [formStata, action] = useFormState(signinAction, { message: "" });
+  const [formStata, action] = useFormState(signinAction, null);
 
   const router = useRouter();
 
@@ -31,10 +31,16 @@ const SignInForm = () => {
   );
 
   useEffect(() => {
-    if (formStata.message) {
+    if (formStata && !formStata.isSuccess && formStata.error) {
       showNotification({
-        message: formStata.message,
+        message: formStata.error?.detail!,
         type: "error",
+      });
+    } else if (formStata && formStata.isSuccess) {
+      router.push(`/verify?mobile=${getValues("mobile")}`);
+      showNotification({
+        message: "کد تایید به شماره شما ارسال شد",
+        type: "info",
       });
     }
   }, [formStata, showNotification]);
