@@ -4,11 +4,13 @@ import { Textbox } from "@/app/_components/textbox";
 import { useForm } from "react-hook-form";
 import { SignIn } from "../types/signin.types";
 import { TextInput } from "@/app/_components/form-input";
-import { useSignIn } from "../_api/signin";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNotificationStore } from "@/store/notification.store";
 import { signInSchema } from "../types/singin.schema";
+import { signinAction } from "@/actions/auth";
+import { useFormState } from "react-dom";
+import { useEffect } from "react";
 
 const SignInForm = () => {
   const {
@@ -20,23 +22,40 @@ const SignInForm = () => {
     resolver: zodResolver(signInSchema),
   });
 
+  const [formStata, action] = useFormState(signinAction, { message: "" });
+
   const router = useRouter();
 
   const showNotification = useNotificationStore(
     (state) => state.showNotification
   );
 
-  const signIn = useSignIn({
-    onSuccess: () => {
-      router.push(`/verify?mobile=${getValues("mobile")}`);
+  useEffect(() => {
+    if (formStata.message) {
       showNotification({
-        message: "کد تایید به شماره شما ارسال شد",
-        type: "info",
+        message: formStata.message,
+        type: "error",
       });
-    },
-  });
+    }
+  }, [formStata, showNotification]);
+
+  // reza : signin with react query
+
+  // const signIn = useSignIn({
+  //   onSuccess: () => {
+  //     router.push(`/verify?mobile=${getValues("mobile")}`);
+  //     showNotification({
+  //       message: "کد تایید به شماره شما ارسال شد",
+  //       type: "info",
+  //     });
+  //   },
+  // });
+
   const onSubmit = (data: SignIn) => {
-    signIn.submit(data);
+    const formData = new FormData();
+    formData.append("mobile", data.mobile);
+    action(formData);
+    // signIn.submit(data);
   };
 
   return (
@@ -53,7 +72,7 @@ const SignInForm = () => {
           errors={errors}
         />
 
-        <Button type="submit" variant="primary" isLoading={signIn.isPending}>
+        <Button type="submit" variant="primary">
           تایید و دریافت کد
         </Button>
       </form>
