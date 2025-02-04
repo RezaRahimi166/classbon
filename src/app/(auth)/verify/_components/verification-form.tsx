@@ -5,12 +5,17 @@ import { Button } from "@/app/_components/button";
 import { Timer } from "@/app/_components/timer/timer";
 import { TimerRef } from "@/app/_components/timer/timer.types";
 import Link from "next/link";
-import { useRef, useState } from "react";
-import { useSendAuthCode } from "../_api/send-auth-code";
-import { useNotificationStore } from "@/store/notification.store";
+import { useEffect, useRef, useState } from "react";
+// import { useSendAuthCode } from "../_api/send-auth-code";
+import {
+  showNotification,
+  useNotificationStore,
+} from "@/store/notification.store";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { VerifyUserModel } from "../types/verify-user.types";
+import { useFormState } from "react-dom";
+import { sendAuthCode } from "@/actions/auth";
 
 const getTwoMinutesFromNow = () => {
   const time = new Date();
@@ -18,7 +23,7 @@ const getTwoMinutesFromNow = () => {
   return time;
 };
 
-const VerificationForm = () => {
+const VerificationForm = ({ mobile }: { mobile: string }) => {
   const authCodeRef = useRef<AuthCodeRef>(null);
   const [showResendCode, setShowResendCode] = useState<boolean>(false);
 
@@ -35,18 +40,44 @@ const VerificationForm = () => {
     (state) => state.showNotification
   );
 
+  const [sendAuthCodeState, sendAuthCodeAction] = useFormState(
+    sendAuthCode,
+    null
+  );
+
   const params = useSearchParams();
   const username = params.get("mobile")!;
 
-  const sendAuthCode = useSendAuthCode({
-    onSuccess: () => {
-      //show notification
+  useEffect(() => {
+    if (
+      sendAuthCodeState &&
+      !sendAuthCodeState.isSuccess &&
+      sendAuthCodeState.error
+    ) {
       showNotififcation({
-        message: "کد تایید به شماره ی شما ارسال شد",
+        message: sendAuthCodeState.error.detail!,
+        type: "error",
+      });
+    } else if (sendAuthCodeState && sendAuthCodeState.isSuccess) {
+      console.log(sendAuthCodeState.response);
+      showNotififcation({
+        message: "کد تایید به شماره شما ارسال شد",
         type: "info",
       });
-    },
-  });
+    }
+  }, [sendAuthCodeState, showNotification]);
+
+  // useing rect query
+
+  // const sendAuthCode = useSendAuthCode({
+  //   onSuccess: () => {
+  //     //show notification
+  //     showNotififcation({
+  //       message: "کد تایید به شماره ی شما ارسال شد",
+  //       type: "info",
+  //     });
+  //   },
+  // });
 
   register("code", {
     validate: (value: string) => (value ?? "").length === 5,
@@ -60,9 +91,17 @@ const VerificationForm = () => {
   const resendAuthCode = () => {
     timerRef.current?.restart(getTwoMinutesFromNow());
     setShowResendCode(false);
-    sendAuthCode.submit(username);
     authCodeRef.current?.clear();
+    sendAuthCodeAction(mobile);
   };
+
+  // lastVersion with reqct query
+  // const resendAuthCode = () => {
+  //   timerRef.current?.restart(getTwoMinutesFromNow());
+  //   setShowResendCode(false);
+  //   sendAuthCode.submit(username);
+  //   authCodeRef.current?.clear();
+  // };
 
   return (
     <>
