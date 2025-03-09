@@ -1,32 +1,29 @@
 "use client";
+
 import AuthCode from "@/app/_components/auth-code/auth-code";
 import { AuthCodeRef } from "@/app/_components/auth-code/auth-code.types";
-import { Button } from "@/app/_components/button";
+import { Button } from "@/app/_components/button/button";
 import { Timer } from "@/app/_components/timer/timer";
 import { TimerRef } from "@/app/_components/timer/timer.types";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-// import { useSendAuthCode } from "../_api/send-auth-code";
-import {
-  showNotification,
-  useNotificationStore,
-} from "@/store/notification.store";
+import { useEffect, useRef, useState, useTransition } from "react";
+
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { VerifyUserModel } from "../types/verify-user.types";
 import { useFormState } from "react-dom";
-import { sendAuthCode } from "@/actions/auth";
+import { sendAuthCode, verify } from "@/actions/auth";
+import { useNotificationStore } from "@/store/notification.store";
+import { VerifyUserModel } from "../types/verify-user.types";
 
 const getTwoMinutesFromNow = () => {
   const time = new Date();
-  time.setSeconds(time.getSeconds() + 3);
+  time.setSeconds(time.getSeconds() + 10);
   return time;
 };
 
 const VerificationForm = ({ mobile }: { mobile: string }) => {
-  const authCodeRef = useRef<AuthCodeRef>(null);
   const [showResendCode, setShowResendCode] = useState<boolean>(false);
-
+  const authCodeRef = useRef<AuthCodeRef>(null);
   const timerRef = useRef<TimerRef>(null);
 
   const {
@@ -36,7 +33,7 @@ const VerificationForm = ({ mobile }: { mobile: string }) => {
     formState: { isValid },
   } = useForm<VerifyUserModel>();
 
-  const showNotififcation = useNotificationStore(
+  const showNotification = useNotificationStore(
     (state) => state.showNotification
   );
 
@@ -44,6 +41,9 @@ const VerificationForm = ({ mobile }: { mobile: string }) => {
     sendAuthCode,
     null
   );
+  const [verifyState, verifyAction] = useFormState(verify, undefined);
+
+  const [verifyPendingState, startTransition] = useTransition();
 
   const params = useSearchParams();
   const username = params.get("mobile")!;
@@ -54,39 +54,33 @@ const VerificationForm = ({ mobile }: { mobile: string }) => {
       !sendAuthCodeState.isSuccess &&
       sendAuthCodeState.error
     ) {
-      showNotififcation({
+      showNotification({
         message: sendAuthCodeState.error.detail!,
         type: "error",
       });
     } else if (sendAuthCodeState && sendAuthCodeState.isSuccess) {
       console.log(sendAuthCodeState.response);
-      showNotififcation({
+      showNotification({
         message: "کد تایید به شماره شما ارسال شد",
         type: "info",
       });
     }
   }, [sendAuthCodeState, showNotification]);
 
-  // useing rect query
+  const onSubmit = (data: VerifyUserModel) => {
+    data.username = username;
+    const formData = new FormData();
+    formData.append("username", data.username);
+    formData.append("code", data.code);
 
-  // const sendAuthCode = useSendAuthCode({
-  //   onSuccess: () => {
-  //     //show notification
-  //     showNotififcation({
-  //       message: "کد تایید به شماره ی شما ارسال شد",
-  //       type: "info",
-  //     });
-  //   },
-  // });
+    startTransition(async () => {
+      verifyAction(formData);
+    });
+  };
 
   register("code", {
     validate: (value: string) => (value ?? "").length === 5,
   });
-
-  const onSubmit = (data: VerifyUserModel) => {
-    data.username = username;
-    console.log(data);
-  };
 
   const resendAuthCode = () => {
     timerRef.current?.restart(getTwoMinutesFromNow());
@@ -94,41 +88,31 @@ const VerificationForm = ({ mobile }: { mobile: string }) => {
     authCodeRef.current?.clear();
     sendAuthCodeAction(mobile);
   };
-
-  // lastVersion with reqct query
-  // const resendAuthCode = () => {
-  //   timerRef.current?.restart(getTwoMinutesFromNow());
-  //   setShowResendCode(false);
-  //   sendAuthCode.submit(username);
-  //   authCodeRef.current?.clear();
-  // };
-
   return (
     <>
       <h5 className="text-2xl">کد تایید</h5>
       <p className="mt-2">دنیای شگفت انگیز برنامه نویسی در انتظار شماست!</p>
       <form
-        className="flex flex-col gap-6 mt-10 flex-1"
         onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-6 mt-10 flex-1"
       >
         <AuthCode
           className="mt-10"
           ref={authCodeRef}
           onChange={(value) => {
-            // set value
             setValue("code", value, { shouldValidate: true });
           }}
         />
         <Timer
-          className="my-8 "
           ref={timerRef}
+          className="my-8"
           size="small"
-          expiryTimestamp={getTwoMinutesFromNow()}
-          showDays={false}
-          showHours={false}
           onExpire={() => {
             setShowResendCode(true);
           }}
+          expiryTimestamp={getTwoMinutesFromNow()}
+          showDays={false}
+          showHours={false}
         />
         <Button
           isLink={true}
@@ -137,7 +121,12 @@ const VerificationForm = ({ mobile }: { mobile: string }) => {
         >
           ارسال مجدد کد تایید
         </Button>
-        <Button type="submit" variant="primary" isDisabled={!isValid}>
+        <Button
+          type="submit"
+          variant="primary"
+          isLoading={verifyPendingState}
+          isDisabled={!isValid}
+        >
           تایید و ادامه
         </Button>
         <div className="flex items-start gap-1 justify-center mt-auto">
