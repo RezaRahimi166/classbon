@@ -69,6 +69,13 @@ export async function verify(
   }
 }
 
-export async function logout() {
-  await signOut();
+export async function logout(prevState: OperationResult<void> | undefined) {
+  try {
+    await signOut({ redirect: false });
+    return {
+      isSuccess: true,
+    } satisfies OperationResult<void>;
+  } catch (error) {
+    throw new Error("");
+  }
 }
