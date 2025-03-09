@@ -8,12 +8,13 @@ import { TimerRef } from "@/app/_components/timer/timer.types";
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useFormState } from "react-dom";
 import { sendAuthCode, verify } from "@/actions/auth";
 import { useNotificationStore } from "@/store/notification.store";
 import { VerifyUserModel } from "../types/verify-user.types";
+import { getSession } from "next-auth/react";
 
 const getTwoMinutesFromNow = () => {
   const time = new Date();
@@ -47,6 +48,20 @@ const VerificationForm = ({ mobile }: { mobile: string }) => {
 
   const params = useSearchParams();
   const username = params.get("mobile")!;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (verifyState && !verifyState.isSuccess && verifyState?.error?.detail) {
+      showNotification({
+        message: verifyState.error.detail!,
+        type: "error",
+      });
+    } else if (verifyState?.isSuccess) {
+      const fetchSession = async () => await getSession();
+      fetchSession();
+      router.push("/student/courses");
+    }
+  });
 
   useEffect(() => {
     if (
@@ -69,12 +84,12 @@ const VerificationForm = ({ mobile }: { mobile: string }) => {
 
   const onSubmit = (data: VerifyUserModel) => {
     data.username = username;
-    const formData = new FormData();
-    formData.append("username", data.username);
-    formData.append("code", data.code);
 
     startTransition(async () => {
-      verifyAction(formData);
+      verifyAction({
+        username: data.username,
+        code: data.code,
+      });
     });
   };
 

@@ -6,9 +6,12 @@ import { redirect } from "next/navigation";
 import { serverActionWrapper } from "../server-action-wrapper";
 import { createData } from "@/core/http-service/http-service";
 import { SignIn } from "@/app/(auth)/signin/types/signin.types";
-import { SendAuthCode } from "@/app/(auth)/verify/types/verify-user.types";
+import {
+  SendAuthCode,
+  VerifyUserModel,
+} from "@/app/(auth)/verify/types/verify-user.types";
 import { Problem } from "@/types/http-errors.interface";
-import { signIn, signOut } from "@/auth";
+import { AuthroizeError, signIn, signOut } from "@/auth";
 
 export async function signinAction(
   formState: OperationResult<string> | null,
@@ -42,15 +45,27 @@ export async function sendAuthCode(
   );
 }
 
-export async function verify(state: Problem | undefined, formData: FormData) {
+export async function verify(
+  prevState: OperationResult<void> | undefined,
+  model: VerifyUserModel
+) {
   try {
-    await signIn("credentials", formData);
-  } catch (error) {
-    // todo
+    await signIn("credentials", {
+      username: model.username,
+      code: model.code,
+      redirect: false,
+    });
     return {
-      status: 0,
-      title: "",
-    } satisfies Problem;
+      isSuccess: true,
+    } satisfies OperationResult<void>;
+  } catch (error) {
+    if (error instanceof AuthroizeError) {
+      return {
+        isSuccess: false,
+        error: error.problem!,
+      } satisfies OperationResult<void>;
+    }
+    throw new Error("");
   }
 }
 
